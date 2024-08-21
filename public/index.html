@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notification</title>
+</head>
+<body>
+  <h1>Notification System</h1>
+  <h2>Create Notification</h2>
+  <form id="notificationForm">
+    <label for="message">Message:</label>
+    <input type="text" name="message" id="message" required />
+    <button type="submit">Send</button>
+  </form>
+  <script>
+    const userId = 1;
+
+    document.getElementById("notificationForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = document.getElementById("message").value;
+
+      try {
+        const response = await fetch('/notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId, message })
+        });
+
+        if (response.ok) {
+          alert('Notification sent!');
+        } else {
+          alert('Failed to send notification.');
+        }
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    });
+
+    const showNotification = (message) => {
+      if (Notification.permission === 'granted') {
+        new Notification('New Notification', {
+          body: message,
+          icon: "/Images/iconnotify.png"
+        });
+      }
+    };
+
+    if (Notification.permission !== 'granted') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+        } else {
+          console.log('Notification permission denied.');
+        }
+      }).catch(error => {
+        console.log('Notification permission request error:', error);
+      });
+    }
+
+    const eventSource = new EventSource(`/notifications/sse/${userId}`);
+
+    eventSource.onerror = function(event) {
+      console.error('EventSource error:', event);
+      eventSource.close();
+    };
+
+    eventSource.onmessage = function(event) {
+      const notification = JSON.parse(event.data);
+      console.log('Received SSE message:', event.data);
+      showNotification(notification.message);
+    };
+  </script>
+</body>
+</html>
