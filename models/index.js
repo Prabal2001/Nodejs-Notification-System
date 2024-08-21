@@ -3,7 +3,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize("notification_db", "root", "", {
   host: "localhost",
   dialect: "mysql",
-  logging: console.log,
+  logging: false,
 });
 
 const db = {};

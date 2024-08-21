@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
     read: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.BOOLEAN, 
       defaultValue: false,
     },
   });
